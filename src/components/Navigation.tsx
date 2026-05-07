@@ -73,6 +73,7 @@ export default function Navigation({
           <div className="relative flex items-center gap-1">
             <button
               ref={cardsTabRef}
+              data-tab="cards"
               onClick={() => onTabChange("cards")}
               className="relative px-4 py-2 transition-colors duration-200 flex items-center gap-2"
               style={{
@@ -102,6 +103,7 @@ export default function Navigation({
             </button>
             <button
               ref={swimlaneTabRef}
+              data-tab="swimlane"
               onClick={() => onTabChange("swimlane")}
               className="relative px-4 py-2 transition-colors duration-200 flex items-center gap-2"
               style={{

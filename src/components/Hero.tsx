@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Link } from "react-router";
 import ParticleCanvas from "./ParticleCanvas";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -160,6 +161,41 @@ export default function Hero() {
         >
           18 autonomous agents · 6 business phases · SAP S/4HANA vs D365 BC
         </p>
+
+        <div className="mt-8">
+          <Link
+            to="/demo"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              background: "rgba(212,168,67,0.92)",
+              color: "#0B0F19",
+              border: "1px solid rgba(212,168,67,0.5)",
+              borderRadius: "999px",
+              padding: "12px 18px",
+              fontSize: "12px",
+              fontWeight: 900,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              boxShadow: "0 24px 70px rgba(212,168,67,0.18)",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)";
+              (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                "0 32px 90px rgba(212,168,67,0.22)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
+              (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                "0 24px 70px rgba(212,168,67,0.18)";
+            }}
+          >
+            Watch Walkthrough
+          </Link>
+        </div>
 
         {/* Scroll Indicator */}
         <div
