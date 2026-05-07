@@ -73,7 +73,7 @@ export default function DemoHUD({
             fontWeight: 600,
           }}
         >
-          Agentic AI · Walkthrough
+          Agentic AI · OTC-AR · Walkthrough Demo
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -188,4 +188,3 @@ export default function DemoHUD({
     </div>
   );
 }
-

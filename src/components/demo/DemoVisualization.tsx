@@ -630,18 +630,6 @@ export default function DemoVisualization({
   const headerLeft = (
     <>
       <GoldTag>Visualization</GoldTag>
-      <span
-        style={{
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "#8B95A8",
-          fontFamily: "'Geist Mono', monospace",
-        }}
-      >
-        Adaptive · Cinematic
-      </span>
     </>
   );
 
@@ -691,4 +679,3 @@ export default function DemoVisualization({
     </div>
   );
 }
-
