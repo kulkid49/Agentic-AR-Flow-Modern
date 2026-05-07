@@ -159,7 +159,7 @@ export default function Hero() {
             lineHeight: 1.6,
           }}
         >
-          18 autonomous agents · 6 business phases · SAP S/4HANA vs D365 BC
+          10 autonomous agents · 6 business phases · SAP S/4HANA vs D365 BC
         </p>
 
         <div className="mt-8">
