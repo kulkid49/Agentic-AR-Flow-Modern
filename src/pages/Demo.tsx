@@ -7,6 +7,7 @@ import DemoHUD from "../components/demo/DemoHUD";
 import DemoSceneCard from "../components/demo/DemoSceneCard";
 import DemoControls from "../components/demo/DemoControls";
 import TypewriterWords from "../components/demo/TypewriterWords";
+import DemoVisualization from "../components/demo/DemoVisualization";
 
 type Segment = {
   key: string;
@@ -249,6 +250,10 @@ export default function Demo() {
                     />
                   </div>
                 ))}
+              </div>
+
+              <div className="mt-4">
+                <DemoVisualization agent={agent} />
               </div>
 
               <div className="mt-6">
