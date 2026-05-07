@@ -118,7 +118,7 @@ export default function Demo() {
     navigate("/");
   };
 
-  const handlePrimary = () => {
+  const animateTo = (nextIndex: number, direction: "forward" | "back") => {
     if (transitioning) return;
     if (!sceneRef.current) return;
 
@@ -126,18 +126,36 @@ export default function Demo() {
 
     gsap.to(sceneRef.current, {
       opacity: 0,
-      y: -10,
+      y: direction === "forward" ? -10 : 10,
       scale: 0.99,
       duration: 0.25,
       ease: "power2.in",
       onComplete: () => {
-        setSceneIndex((prev) => {
-          if (prev < 0) return 0;
-          if (prev >= total) return -1;
-          return clamp(prev + 1, -1, total);
-        });
+        setSceneIndex(clamp(nextIndex, -1, total));
       },
     });
+  };
+
+  const handlePrimary = () => {
+    if (sceneIndex < 0) {
+      animateTo(0, "forward");
+      return;
+    }
+    if (sceneIndex >= total) {
+      animateTo(-1, "forward");
+      return;
+    }
+    animateTo(sceneIndex + 1, "forward");
+  };
+
+  const canGoBack = sceneIndex !== -1 && !transitioning;
+  const handleBack = () => {
+    if (!canGoBack) return;
+    if (sceneIndex >= total) {
+      animateTo(total - 1, "back");
+      return;
+    }
+    animateTo(sceneIndex - 1, "back");
   };
 
   return (
@@ -238,6 +256,9 @@ export default function Demo() {
                   primaryLabel={primaryLabel}
                   primaryDisabled={transitioning}
                   onPrimary={handlePrimary}
+                  secondaryLabel="Back"
+                  secondaryDisabled={!canGoBack}
+                  onSecondary={handleBack}
                   onExit={handleExit}
                 />
               </div>
