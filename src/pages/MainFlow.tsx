@@ -6,11 +6,12 @@ import Hero from "../components/Hero";
 import Navigation from "../components/Navigation";
 import AgentCardsView from "../components/AgentCardsView";
 import SwimlaneView from "../components/SwimlaneView";
+import FlowChartView from "../components/FlowChartView";
 import Footer from "../components/Footer";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function MainFlow() {
-  const [activeTab, setActiveTab] = useState<"cards" | "swimlane">("cards");
+  const [activeTab, setActiveTab] = useState<"cards" | "swimlane" | "flow">("cards");
   const [activePhase, setActivePhase] = useState("all");
   const [tabTransitioning, setTabTransitioning] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -34,7 +35,7 @@ export default function MainFlow() {
   }, []);
 
   const handleTabChange = useCallback(
-    (tab: "cards" | "swimlane") => {
+    (tab: "cards" | "swimlane" | "flow") => {
       if (tab === activeTab || tabTransitioning) return;
 
       setTabTransitioning(true);
@@ -144,6 +145,8 @@ export default function MainFlow() {
         {activeTab === "swimlane" && (
           <SwimlaneView onCellClick={handleSwimlaneCellClick} />
         )}
+
+        {activeTab === "flow" && <FlowChartView />}
       </div>
 
       <Footer />

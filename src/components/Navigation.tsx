@@ -3,8 +3,8 @@ import gsap from "gsap";
 import { phaseOrder, phaseShortNames } from "@/data/agents";
 
 interface NavigationProps {
-  activeTab: "cards" | "swimlane";
-  onTabChange: (tab: "cards" | "swimlane") => void;
+  activeTab: "cards" | "swimlane" | "flow";
+  onTabChange: (tab: "cards" | "swimlane" | "flow") => void;
   activePhase: string;
   onPhaseChange: (phase: string) => void;
 }
@@ -19,10 +19,16 @@ export default function Navigation({
   const tabIndicatorRef = useRef<HTMLDivElement>(null);
   const cardsTabRef = useRef<HTMLButtonElement>(null);
   const swimlaneTabRef = useRef<HTMLButtonElement>(null);
+  const flowTabRef = useRef<HTMLButtonElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   useEffect(() => {
-    const target = activeTab === "cards" ? cardsTabRef.current : swimlaneTabRef.current;
+    const target =
+      activeTab === "cards"
+        ? cardsTabRef.current
+        : activeTab === "swimlane"
+          ? swimlaneTabRef.current
+          : flowTabRef.current;
     if (target && navRef.current) {
       const navRect = navRef.current.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
@@ -133,6 +139,39 @@ export default function Navigation({
               Swimlane
             </button>
 
+            <button
+              ref={flowTabRef}
+              data-tab="flow"
+              onClick={() => onTabChange("flow")}
+              className="relative px-4 py-2 transition-colors duration-200 flex items-center gap-2"
+              style={{
+                fontSize: "13px",
+                fontWeight: 500,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: activeTab === "flow" ? "#D4A843" : "#8B95A8",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== "flow") (e.target as HTMLElement).style.color = "#F0F2F5";
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== "flow") (e.target as HTMLElement).style.color = "#8B95A8";
+              }}
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                <circle cx="6" cy="6" r="2" />
+                <circle cx="18" cy="6" r="2" />
+                <circle cx="12" cy="18" r="2" />
+                <path d="M8 6h8" />
+                <path d="M7 7l4 9" />
+                <path d="M17 7l-4 9" />
+              </svg>
+              Flow Diagram
+            </button>
+
             {/* Active tab indicator */}
             <div
               ref={tabIndicatorRef}
@@ -213,7 +252,7 @@ export default function Navigation({
           )}
 
           {/* Empty spacer when swimlane is active */}
-          {activeTab === "swimlane" && <div className="hidden lg:block w-[200px]" />}
+          {activeTab !== "cards" && <div className="hidden lg:block w-[200px]" />}
         </div>
       </div>
     </nav>
