@@ -321,54 +321,85 @@ export default function FlowChartView() {
     const nodes: NodeSpec[] = [];
     const edges: EdgeSpec[] = [];
 
+    const canvasW = 1200;
+    const centerX = canvasW / 2;
+
+    const startW = 360;
+    const startH = 56;
+    const endW = 360;
+    const endH = 56;
+
+    const processW = 560;
+    const processH = 70;
+
+    const decisionSize = 140;
+    const branchW = 340;
+    const branchH = 54;
+
+    const gap = 120;
+    const decisionBranchGap = 170;
+    const decisionToNextGap = 280;
+
     const startNode: NodeSpec = {
       id: "start",
       kind: "start",
       label: "START",
-      x: 420,
+      x: centerX - startW / 2,
       y: 40,
-      w: 360,
-      h: 56,
+      w: startW,
+      h: startH,
     };
     nodes.push(startNode);
 
-    const nodeW = 420;
-    const nodeH = 66;
-    const leftX = 120;
-    const rightX = 660;
-    const topY = 140;
-    const rowGap = 120;
+    let y = 140;
 
     for (let i = 0; i < steps.length; i += 1) {
       const step = steps[i];
-      const row = Math.floor(i / 2);
-      const col = i % 2;
-      const x = col === 0 ? leftX : rightX;
-      const y = topY + row * rowGap;
-      const base: NodeSpec = {
-        id: step.id,
-        kind: step.kind,
-        label: `Step ${step.stepNo}: ${step.title}`,
-        sublabel: step.agentName,
-        x,
-        y,
-        w: nodeW,
-        h: nodeH,
-        stepNo: step.stepNo,
-      };
+      const isDecision = step.kind === "decision";
+
+      const base: NodeSpec = isDecision
+        ? {
+            id: step.id,
+            kind: step.kind,
+            label: `Step ${step.stepNo}: ${step.title}`,
+            sublabel: step.agentName,
+            x: centerX - decisionSize / 2,
+            y,
+            w: decisionSize,
+            h: decisionSize,
+            stepNo: step.stepNo,
+          }
+        : {
+            id: step.id,
+            kind: step.kind,
+            label: `Step ${step.stepNo}: ${step.title}`,
+            sublabel: step.agentName,
+            x: centerX - processW / 2,
+            y,
+            w: processW,
+            h: processH,
+            stepNo: step.stepNo,
+          };
+
       nodes.push(base);
 
       if (step.decision) {
         const b1 = step.decision.branches[0];
         const b2 = step.decision.branches[1];
+
+        const branchY = y + decisionBranchGap;
+        const branchGapX = 40;
+        const leftX = centerX - branchGapX - branchW;
+        const rightX = centerX + branchGapX;
+
         nodes.push({
           id: `${step.id}-b1`,
           kind: "branch",
           label: `${b1.label}: ${b1.note}`,
-          x: x - 80,
-          y: y + 92,
-          w: 300,
-          h: 54,
+          x: leftX,
+          y: branchY,
+          w: branchW,
+          h: branchH,
           stepNo: step.stepNo,
           branchKind: b1.kind,
         });
@@ -376,10 +407,10 @@ export default function FlowChartView() {
           id: `${step.id}-b2`,
           kind: "branch",
           label: `${b2.label}: ${b2.note}`,
-          x: x + 200,
-          y: y + 92,
-          w: 300,
-          h: 54,
+          x: rightX,
+          y: branchY,
+          w: branchW,
+          h: branchH,
           stepNo: step.stepNo,
           branchKind: b2.kind,
         });
@@ -390,6 +421,12 @@ export default function FlowChartView() {
 
       if (i === 0) edges.push({ id: "start-to-s1", from: "start", to: step.id });
       if (i > 0) edges.push({ id: `${steps[i - 1].id}-to-${step.id}`, from: steps[i - 1].id, to: step.id });
+
+      if (step.decision) {
+        y += decisionToNextGap;
+      } else {
+        y += gap;
+      }
     }
 
     const last = steps[steps.length - 1];
@@ -397,10 +434,10 @@ export default function FlowChartView() {
       id: "end",
       kind: "end",
       label: "END",
-      x: 420,
-      y: (nodes.find((n) => n.id === last.id)?.y ?? 0) + 180,
-      w: 360,
-      h: 56,
+      x: centerX - endW / 2,
+      y,
+      w: endW,
+      h: endH,
     };
     nodes.push(endNode);
     edges.push({ id: `${last.id}-to-end`, from: last.id, to: "end" });
@@ -925,8 +962,24 @@ export default function FlowChartView() {
                       <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
+                  <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3.5" result="b" />
+                    <feColorMatrix
+                      in="b"
+                      type="matrix"
+                      values="
+                        0 0 0 0 0.10
+                        0 0 0 0 0.75
+                        0 0 0 0 0.62
+                        0 0 0 0.65 0"
+                    />
+                    <feMerge>
+                      <feMergeNode />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                   <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                    <path d="M0,0 L9,3 L0,6 Z" fill="rgba(45,212,168,0.85)" />
+                    <path d="M0,0 L9,3 L0,6 Z" fill="rgba(45,212,168,0.95)" />
                   </marker>
                 </defs>
 
@@ -949,15 +1002,18 @@ export default function FlowChartView() {
                       const from = nodeById.get(e.from)!;
                       const to = nodeById.get(e.to)!;
                       const d = pathBetween(from, to);
+                      const isDashed = !!e.dashed;
                       return (
                         <path
                           key={e.id}
                           data-edge={e.id}
                           d={d}
                           fill="none"
-                          stroke={e.dashed ? "rgba(180,83,9,0.55)" : "rgba(45,212,168,0.85)"}
-                          strokeWidth={e.dashed ? 2 : 2.4}
-                          strokeDasharray={e.dashed ? "8 10" : undefined}
+                          stroke={isDashed ? "rgba(180,83,9,0.70)" : "rgba(45,212,168,0.95)"}
+                          strokeWidth={isDashed ? 2.4 : 3.2}
+                          strokeDasharray={isDashed ? "8 10" : undefined}
+                          strokeLinecap="round"
+                          filter={isDashed ? undefined : "url(#edgeGlow)"}
                           markerEnd="url(#arrowHead)"
                           opacity={1}
                           vectorEffect="non-scaling-stroke"
@@ -978,8 +1034,8 @@ export default function FlowChartView() {
                     if (isDecision) {
                       const cx = n.x + n.w / 2;
                       const cy = n.y + n.h / 2;
-                      const w = 120;
-                      const h = 120;
+                      const w = n.w;
+                      const h = n.h;
                       const points = `${cx},${cy - h / 2} ${cx + w / 2},${cy} ${cx},${cy + h / 2} ${cx - w / 2},${cy}`;
                       return (
                         <g key={n.id} data-node={n.id} opacity={baseOpacity} style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}>
@@ -990,16 +1046,16 @@ export default function FlowChartView() {
                             strokeWidth="2.4"
                             vectorEffect="non-scaling-stroke"
                           />
-                          <text x={cx} y={cy - 10} textAnchor="middle" fill="#F0F2F5" fontSize="12" fontWeight="800">
+                          <text x={cx} y={cy - 18} textAnchor="middle" fill="#F0F2F5" fontSize="12" fontWeight="800">
                             {`Step ${n.stepNo}`}
                           </text>
-                          <text x={cx} y={cy + 12} textAnchor="middle" fill="rgba(212,168,67,0.95)" fontSize="18" fontWeight="900">
+                          <text x={cx} y={cy + 10} textAnchor="middle" fill="rgba(212,168,67,0.95)" fontSize="18" fontWeight="900">
                             ?
                           </text>
-                          <text x={cx} y={cy + 34} textAnchor="middle" fill="rgba(240,242,245,0.75)" fontSize="10" fontWeight="700">
+                          <text x={cx} y={cy + 32} textAnchor="middle" fill="rgba(240,242,245,0.75)" fontSize="10" fontWeight="700">
                             DECISION
                           </text>
-                          <text x={cx} y={cy + 60} textAnchor="middle" fill="rgba(139,149,168,0.85)" fontSize="10" fontWeight="650">
+                          <text x={cx} y={cy + 56} textAnchor="middle" fill="rgba(139,149,168,0.85)" fontSize="10" fontWeight="650">
                             {clipText(n.label.replace(/^Step \d+:\s*/, ""), 18)}
                           </text>
                         </g>
