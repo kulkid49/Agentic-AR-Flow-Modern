@@ -606,21 +606,151 @@ export default function FlowChartView() {
               WebkitBackdropFilter: "blur(18px)",
             }}
           >
-            <div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div>
+                <div
+                  style={{
+                    fontFamily: "'Geist Mono', monospace",
+                    fontSize: "11px",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: "#D4A843",
+                    fontWeight: 700,
+                  }}
+                >
+                  Generalized Order-to-Cash Process – Agentic AI Flow
+                </div>
+                <div style={{ marginTop: "6px", fontSize: "13px", color: "#8B95A8", fontWeight: 600 }}>
+                  Interactive OTC + AR flow · 19 steps · enterprise-grade visualization
+                </div>
+              </div>
+
               <div
+                className="flex items-center gap-3"
                 style={{
-                  fontFamily: "'Geist Mono', monospace",
-                  fontSize: "11px",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "#D4A843",
-                  fontWeight: 700,
+                  height: "30px",
+                  background: "rgba(11,15,25,0.60)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  borderRadius: "999px",
+                  padding: "0 10px",
+                  backdropFilter: "blur(18px)",
+                  WebkitBackdropFilter: "blur(18px)",
+                  maxWidth: "860px",
                 }}
               >
-                Generalized Order-to-Cash Process – Agentic AI Flow
-              </div>
-              <div style={{ marginTop: "6px", fontSize: "13px", color: "#8B95A8", fontWeight: 600 }}>
-                Interactive OTC + AR flow · 19 steps · enterprise-grade visualization
+                <div
+                  className="flex items-center gap-3 overflow-x-auto"
+                  style={{ scrollbarWidth: "none", whiteSpace: "nowrap" }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 14,
+                        height: 9,
+                        borderRadius: 4,
+                        background: "rgba(148,163,184,0.18)",
+                        border: "1px solid rgba(255,255,255,0.14)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: "11px", color: "#8B95A8", fontWeight: 700 }}>
+                      ERP
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 14,
+                        height: 9,
+                        borderRadius: 4,
+                        background: "linear-gradient(135deg, rgba(30,58,138,0.85), rgba(15,118,110,0.65))",
+                        border: "1px solid rgba(30,58,138,0.55)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: "11px", color: "#8B95A8", fontWeight: 700 }}>
+                      Agent
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 10,
+                        height: 10,
+                        transform: "rotate(45deg)",
+                        background: "rgba(180,83,9,0.10)",
+                        border: "1px solid rgba(180,83,9,0.9)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: "11px", color: "#8B95A8", fontWeight: 700 }}>
+                      Decision
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 14,
+                        height: 9,
+                        borderRadius: 999,
+                        background: "#15803D",
+                        border: "1px solid rgba(21,128,61,0.55)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: "11px", color: "#8B95A8", fontWeight: 700 }}>
+                      Start
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 14,
+                        height: 9,
+                        borderRadius: 999,
+                        background: "#B91C1C",
+                        border: "1px solid rgba(185,28,28,0.55)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: "11px", color: "#8B95A8", fontWeight: 700 }}>
+                      End
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span style={{ fontSize: "11px", color: "#8B95A8", fontWeight: 700 }}>
+                    Agents only
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowOnlyAgentSteps((v) => !v)}
+                    style={{
+                      width: 40,
+                      height: 20,
+                      borderRadius: 999,
+                      border: "1px solid rgba(255,255,255,0.14)",
+                      background: showOnlyAgentSteps ? "rgba(45,212,168,0.18)" : "rgba(255,255,255,0.06)",
+                      position: "relative",
+                      cursor: "pointer",
+                    }}
+                    aria-pressed={showOnlyAgentSteps}
+                  >
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 2,
+                        left: showOnlyAgentSteps ? 20 : 2,
+                        width: 16,
+                        height: 16,
+                        borderRadius: 999,
+                        background: showOnlyAgentSteps ? "#2DD4A8" : "rgba(255,255,255,0.30)",
+                        transition: "left 0.2s ease",
+                      }}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -747,123 +877,6 @@ export default function FlowChartView() {
                 )}
               </div>
 
-              <div
-                style={{
-                  background: "rgba(11,15,25,0.72)",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  borderRadius: "14px",
-                  padding: "10px 10px",
-                  width: "260px",
-                  backdropFilter: "blur(18px)",
-                  WebkitBackdropFilter: "blur(18px)",
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: "'Geist Mono', monospace",
-                    fontSize: "10px",
-                    letterSpacing: "0.16em",
-                    textTransform: "uppercase",
-                    color: "#D4A843",
-                    fontWeight: 800,
-                  }}
-                >
-                  Legend
-                </div>
-                <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
-                  <div className="flex items-center gap-2">
-                    <span
-                      style={{
-                        width: 16,
-                        height: 10,
-                        borderRadius: 4,
-                        background: "rgba(148,163,184,0.18)",
-                        border: "1px solid rgba(255,255,255,0.14)",
-                      }}
-                    />
-                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>ERP Automated Step</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      style={{
-                        width: 16,
-                        height: 10,
-                        borderRadius: 4,
-                        background: "linear-gradient(135deg, rgba(30,58,138,0.85), rgba(15,118,110,0.65))",
-                        border: "1px solid rgba(30,58,138,0.55)",
-                      }}
-                    />
-                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Agent-Active Step</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      style={{
-                        width: 12,
-                        height: 12,
-                        transform: "rotate(45deg)",
-                        background: "rgba(180,83,9,0.10)",
-                        border: "1px solid rgba(180,83,9,0.9)",
-                      }}
-                    />
-                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Decision</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      style={{
-                        width: 16,
-                        height: 10,
-                        borderRadius: 999,
-                        background: "#15803D",
-                        border: "1px solid rgba(21,128,61,0.55)",
-                      }}
-                    />
-                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Start</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      style={{
-                        width: 16,
-                        height: 10,
-                        borderRadius: 999,
-                        background: "#B91C1C",
-                        border: "1px solid rgba(185,28,28,0.55)",
-                      }}
-                    />
-                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>End</div>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between gap-2">
-                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Show only agent steps</div>
-                  <button
-                    type="button"
-                    onClick={() => setShowOnlyAgentSteps((v) => !v)}
-                    style={{
-                      width: 44,
-                      height: 26,
-                      borderRadius: 999,
-                      border: "1px solid rgba(255,255,255,0.14)",
-                      background: showOnlyAgentSteps ? "rgba(45,212,168,0.18)" : "rgba(255,255,255,0.06)",
-                      position: "relative",
-                      cursor: "pointer",
-                    }}
-                    aria-pressed={showOnlyAgentSteps}
-                  >
-                    <span
-                      style={{
-                        position: "absolute",
-                        top: 3,
-                        left: showOnlyAgentSteps ? 22 : 3,
-                        width: 20,
-                        height: 20,
-                        borderRadius: 999,
-                        background: showOnlyAgentSteps ? "#2DD4A8" : "rgba(255,255,255,0.30)",
-                        transition: "left 0.2s ease",
-                      }}
-                    />
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
