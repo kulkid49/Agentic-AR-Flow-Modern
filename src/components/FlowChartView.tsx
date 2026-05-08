@@ -60,6 +60,17 @@ function pathBetween(from: NodeSpec, to: NodeSpec) {
   const toRight = { x: to.x + to.w, y: toCenterY };
 
   if (to.kind === "branch") {
+    if (from.kind === "decision") {
+      const start = fromBottom;
+      const junctionY = start.y + 40;
+      const endY = to.y + to.h / 2;
+      const end =
+        toCenterX < fromCenterX
+          ? { x: to.x + to.w, y: endY }
+          : { x: to.x, y: endY };
+      return `M ${start.x} ${start.y} L ${start.x} ${junctionY} L ${end.x} ${junctionY} L ${end.x} ${end.y}`;
+    }
+
     const start = fromBottom;
     const end = toTop;
     const elbowY = start.y + 34;
