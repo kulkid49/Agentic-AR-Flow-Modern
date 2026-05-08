@@ -283,10 +283,6 @@ function nodeStyle(kind: NodeKind, branchKind?: "warning" | "success" | "error")
   return { fill: "rgba(255,255,255,0.06)", stroke: "rgba(255,255,255,0.12)", text: "#F0F2F5" };
 }
 
-function isAgentRelated(step: FlowStep) {
-  return step.kind === "agent" || step.kind === "decision";
-}
-
 export default function FlowChartView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
