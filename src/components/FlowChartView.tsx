@@ -64,11 +64,9 @@ function pathBetween(from: NodeSpec, to: NodeSpec) {
       const start = fromBottom;
       const junctionY = start.y + 40;
       const endY = to.y + to.h / 2;
-      const end =
-        toCenterX < fromCenterX
-          ? { x: to.x + to.w, y: endY }
-          : { x: to.x, y: endY };
-      return `M ${start.x} ${start.y} L ${start.x} ${junctionY} L ${end.x} ${junctionY} L ${end.x} ${end.y}`;
+      const end = toCenterX < fromCenterX ? { x: to.x + to.w, y: endY } : { x: to.x, y: endY };
+      const approachX = toCenterX < fromCenterX ? end.x + 32 : end.x - 32;
+      return `M ${start.x} ${start.y} L ${start.x} ${junctionY} L ${approachX} ${junctionY} L ${approachX} ${end.y} L ${end.x} ${end.y}`;
     }
 
     const start = fromBottom;
