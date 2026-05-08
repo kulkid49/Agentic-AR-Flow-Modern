@@ -162,6 +162,100 @@ export default function Hero() {
           10 autonomous agents · 6 business phases · SAP S/4HANA vs D365 BC
         </p>
 
+        <div
+          className="mt-7 opacity-0"
+          style={{
+            maxWidth: "760px",
+            width: "100%",
+            background: "rgba(11,15,25,0.55)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            borderRadius: "18px",
+            padding: "14px 14px",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            boxShadow: "0 26px 80px rgba(0,0,0,0.45)",
+          }}
+          ref={(el) => {
+            if (!el) return;
+            const hasAnimated = (el as any).__heroAgentsAnimated;
+            if (hasAnimated) return;
+            (el as any).__heroAgentsAnimated = true;
+            gsap.fromTo(
+              el,
+              { opacity: 0, y: 18 },
+              { opacity: 1, y: 0, duration: 0.8, delay: 1.25, ease: "power3.out" }
+            );
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: "10px",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "#D4A843",
+              fontWeight: 800,
+              textAlign: "center",
+            }}
+          >
+            Agents In This Demo
+          </div>
+
+          <div
+            className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2"
+            style={{ textAlign: "left" }}
+          >
+            {[
+              "Orchestrator Agent",
+              "Billing Agent",
+              "Credit Risk Agent",
+              "Reporting Agent",
+              "Cash Application Agent",
+              "Extractor Agent",
+              "Customer Agent",
+              "Monitoring Agent",
+              "Dispute Agent",
+              "Collections Agent",
+            ].map((name, idx) => (
+              <div
+                key={name}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "10px 12px",
+                  borderRadius: "14px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <span
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "999px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontFamily: "'Geist Mono', monospace",
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    color: "#0B0F19",
+                    background: "rgba(212,168,67,0.92)",
+                    border: "1px solid rgba(212,168,67,0.45)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {idx + 1}
+                </span>
+                <span style={{ fontSize: "13px", fontWeight: 700, color: "#F0F2F5", lineHeight: 1.2 }}>
+                  {name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-8">
           <Link
             to="/demo"
