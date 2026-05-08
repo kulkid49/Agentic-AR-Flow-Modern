@@ -59,6 +59,19 @@ function pathBetween(from: NodeSpec, to: NodeSpec) {
   const toLeft = { x: to.x, y: toCenterY };
   const toRight = { x: to.x + to.w, y: toCenterY };
 
+  if (to.kind === "branch") {
+    const start = fromBottom;
+    const end = toTop;
+    const elbowY = start.y + 34;
+    return `M ${start.x} ${start.y} L ${start.x} ${elbowY} L ${end.x} ${elbowY} L ${end.x} ${end.y}`;
+  }
+
+  if (Math.abs(dx) < 6 && dy >= 0) {
+    const start = fromBottom;
+    const end = toTop;
+    return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+  }
+
   const mostlyVertical = Math.abs(dy) > Math.abs(dx) * 0.9;
 
   if (mostlyVertical) {
@@ -1091,8 +1104,9 @@ export default function FlowChartView() {
                         )}
 
                         <text
-                          x={n.x + (isAgent ? 44 : 16)}
-                          y={n.y + 26}
+                          x={n.x + n.w / 2}
+                          y={n.y + 30}
+                          textAnchor="middle"
                           fill={st.text}
                           fontSize="12"
                           fontWeight="900"
@@ -1100,14 +1114,15 @@ export default function FlowChartView() {
                           {label}
                         </text>
                         {sub && (
-                          <text x={n.x + (isAgent ? 44 : 16)} y={n.y + 46} fill="rgba(139,149,168,0.92)" fontSize="11" fontWeight="650">
+                          <text
+                            x={n.x + n.w / 2}
+                            y={n.y + 52}
+                            textAnchor="middle"
+                            fill="rgba(139,149,168,0.92)"
+                            fontSize="11"
+                            fontWeight="650"
+                          >
                             {clipText(sub, 42)}
-                          </text>
-                        )}
-
-                        {n.kind === "branch" && (
-                          <text x={n.x + 16} y={n.y + 36} fill="rgba(240,242,245,0.72)" fontSize="11" fontWeight="700">
-                            {clipText(n.label, 44)}
                           </text>
                         )}
                       </g>
