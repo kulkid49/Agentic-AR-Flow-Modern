@@ -51,7 +51,7 @@ export default function TypewriterChars({
     return () => window.clearInterval(id);
   }, [start, charDelayMs, content, onDone]);
 
-  const shown = start ? content.slice(0, count) : "";
+  const shown = start ? content.slice(0, count) : doneRef.current ? content : "";
   const isTyping = start && !doneRef.current && content.length > 0;
 
   return (
@@ -63,4 +63,3 @@ export default function TypewriterChars({
     </div>
   );
 }
-

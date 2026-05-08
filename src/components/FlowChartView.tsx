@@ -41,16 +41,37 @@ type EdgeSpec = {
 };
 
 function pathBetween(from: NodeSpec, to: NodeSpec) {
-  const fx = from.x + from.w / 2;
-  const fy = from.y + from.h;
-  const tx = to.x + to.w / 2;
-  const ty = to.y;
-  const dy = Math.max(40, Math.min(180, (ty - fy) * 0.6));
-  const c1x = fx;
-  const c1y = fy + dy;
-  const c2x = tx;
-  const c2y = ty - dy;
-  return `M ${fx} ${fy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${tx} ${ty}`;
+  const fromCenterX = from.x + from.w / 2;
+  const fromCenterY = from.y + from.h / 2;
+  const toCenterX = to.x + to.w / 2;
+  const toCenterY = to.y + to.h / 2;
+
+  const dx = toCenterX - fromCenterX;
+  const dy = toCenterY - fromCenterY;
+
+  const fromBottom = { x: fromCenterX, y: from.y + from.h };
+  const fromTop = { x: fromCenterX, y: from.y };
+  const fromLeft = { x: from.x, y: fromCenterY };
+  const fromRight = { x: from.x + from.w, y: fromCenterY };
+
+  const toBottom = { x: toCenterX, y: to.y + to.h };
+  const toTop = { x: toCenterX, y: to.y };
+  const toLeft = { x: to.x, y: toCenterY };
+  const toRight = { x: to.x + to.w, y: toCenterY };
+
+  const mostlyVertical = Math.abs(dy) > Math.abs(dx) * 0.9;
+
+  if (mostlyVertical) {
+    const start = dy >= 0 ? fromBottom : fromTop;
+    const end = dy >= 0 ? toTop : toBottom;
+    const midY = (start.y + end.y) / 2;
+    return `M ${start.x} ${start.y} C ${start.x} ${midY}, ${end.x} ${midY}, ${end.x} ${end.y}`;
+  }
+
+  const start = dx >= 0 ? fromRight : fromLeft;
+  const end = dx >= 0 ? toLeft : toRight;
+  const midX = (start.x + end.x) / 2;
+  return `M ${start.x} ${start.y} C ${midX} ${start.y}, ${midX} ${end.y}, ${end.x} ${end.y}`;
 }
 
 function clipText(s: string, max: number) {
@@ -292,6 +313,7 @@ export default function FlowChartView() {
   const [animating, setAnimating] = useState(false);
   const [typedDone, setTypedDone] = useState(true);
   const [showOnlyAgentSteps, setShowOnlyAgentSteps] = useState(false);
+  const [zoom, setZoom] = useState(0.82);
 
   const steps = FLOW_STEPS;
 
@@ -556,6 +578,12 @@ export default function FlowChartView() {
     return (lastNode?.y ?? 1400) + 120;
   }, [nodesAll]);
 
+  const viewTransform = useMemo(() => {
+    const z = Math.max(0.6, Math.min(1.1, zoom));
+    const dx = (1200 * (1 - z)) / 2;
+    return `translate(${dx} 0) scale(${z})`;
+  }, [zoom]);
+
   return (
     <div className="animate-fadeIn">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 pt-6 pb-16">
@@ -596,71 +624,246 @@ export default function FlowChartView() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {!started && (
-                <button
-                  type="button"
-                  onClick={startFlow}
-                  style={{
-                    background: "rgba(212,168,67,0.92)",
-                    border: "1px solid rgba(212,168,67,0.45)",
-                    color: "#0B0F19",
-                    borderRadius: "999px",
-                    padding: "10px 14px",
-                    fontSize: "12px",
-                    fontWeight: 900,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                  }}
-                >
-                  Start
-                </button>
-              )}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "10px" }}>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setZoom((z) => Math.max(0.6, Math.round((z - 0.05) * 100) / 100))}
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.10)",
+                      color: "#F0F2F5",
+                      borderRadius: "10px",
+                      padding: "9px 10px",
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                    aria-label="Zoom out"
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setZoom(0.82)}
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.10)",
+                      color: "#8B95A8",
+                      borderRadius: "10px",
+                      padding: "9px 10px",
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Fit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setZoom((z) => Math.min(1.1, Math.round((z + 0.05) * 100) / 100))}
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.10)",
+                      color: "#F0F2F5",
+                      borderRadius: "10px",
+                      padding: "9px 10px",
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                    aria-label="Zoom in"
+                  >
+                    +
+                  </button>
+                </div>
 
-              {started && !isDone && (
-                <button
-                  type="button"
-                  disabled={!canAdvance}
-                  onClick={advance}
-                  style={{
-                    background: canAdvance ? "rgba(212,168,67,0.92)" : "rgba(212,168,67,0.14)",
-                    border: "1px solid rgba(212,168,67,0.45)",
-                    color: canAdvance ? "#0B0F19" : "rgba(212,168,67,0.7)",
-                    borderRadius: "999px",
-                    padding: "10px 14px",
-                    fontSize: "12px",
-                    fontWeight: 900,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    cursor: canAdvance ? "pointer" : "not-allowed",
-                    opacity: canAdvance ? 1 : 0.8,
-                  }}
-                >
-                  Next
-                </button>
-              )}
+                {!started && (
+                  <button
+                    type="button"
+                    onClick={startFlow}
+                    style={{
+                      background: "rgba(212,168,67,0.92)",
+                      border: "1px solid rgba(212,168,67,0.45)",
+                      color: "#0B0F19",
+                      borderRadius: "999px",
+                      padding: "10px 14px",
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Start
+                  </button>
+                )}
 
-              {isDone && (
-                <button
-                  type="button"
-                  onClick={restart}
+                {started && !isDone && (
+                  <button
+                    type="button"
+                    disabled={!canAdvance}
+                    onClick={advance}
+                    style={{
+                      background: canAdvance ? "rgba(212,168,67,0.92)" : "rgba(212,168,67,0.14)",
+                      border: "1px solid rgba(212,168,67,0.45)",
+                      color: canAdvance ? "#0B0F19" : "rgba(212,168,67,0.7)",
+                      borderRadius: "999px",
+                      padding: "10px 14px",
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      cursor: canAdvance ? "pointer" : "not-allowed",
+                      opacity: canAdvance ? 1 : 0.8,
+                    }}
+                  >
+                    Next
+                  </button>
+                )}
+
+                {isDone && (
+                  <button
+                    type="button"
+                    onClick={restart}
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.10)",
+                      color: "#F0F2F5",
+                      borderRadius: "999px",
+                      padding: "10px 14px",
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Restart
+                  </button>
+                )}
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(11,15,25,0.72)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  borderRadius: "14px",
+                  padding: "10px 10px",
+                  width: "260px",
+                  backdropFilter: "blur(18px)",
+                  WebkitBackdropFilter: "blur(18px)",
+                }}
+              >
+                <div
                   style={{
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    color: "#F0F2F5",
-                    borderRadius: "999px",
-                    padding: "10px 14px",
-                    fontSize: "12px",
-                    fontWeight: 900,
-                    letterSpacing: "0.12em",
+                    fontFamily: "'Geist Mono', monospace",
+                    fontSize: "10px",
+                    letterSpacing: "0.16em",
                     textTransform: "uppercase",
-                    cursor: "pointer",
+                    color: "#D4A843",
+                    fontWeight: 800,
                   }}
                 >
-                  Restart
-                </button>
-              )}
+                  Legend
+                </div>
+                <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 16,
+                        height: 10,
+                        borderRadius: 4,
+                        background: "rgba(148,163,184,0.18)",
+                        border: "1px solid rgba(255,255,255,0.14)",
+                      }}
+                    />
+                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>ERP Automated Step</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 16,
+                        height: 10,
+                        borderRadius: 4,
+                        background: "linear-gradient(135deg, rgba(30,58,138,0.85), rgba(15,118,110,0.65))",
+                        border: "1px solid rgba(30,58,138,0.55)",
+                      }}
+                    />
+                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Agent-Active Step</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 12,
+                        height: 12,
+                        transform: "rotate(45deg)",
+                        background: "rgba(180,83,9,0.10)",
+                        border: "1px solid rgba(180,83,9,0.9)",
+                      }}
+                    />
+                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Decision</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 16,
+                        height: 10,
+                        borderRadius: 999,
+                        background: "#15803D",
+                        border: "1px solid rgba(21,128,61,0.55)",
+                      }}
+                    />
+                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Start</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      style={{
+                        width: 16,
+                        height: 10,
+                        borderRadius: 999,
+                        background: "#B91C1C",
+                        border: "1px solid rgba(185,28,28,0.55)",
+                      }}
+                    />
+                    <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>End</div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Show only agent steps</div>
+                  <button
+                    type="button"
+                    onClick={() => setShowOnlyAgentSteps((v) => !v)}
+                    style={{
+                      width: 44,
+                      height: 26,
+                      borderRadius: 999,
+                      border: "1px solid rgba(255,255,255,0.14)",
+                      background: showOnlyAgentSteps ? "rgba(45,212,168,0.18)" : "rgba(255,255,255,0.06)",
+                      position: "relative",
+                      cursor: "pointer",
+                    }}
+                    aria-pressed={showOnlyAgentSteps}
+                  >
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 3,
+                        left: showOnlyAgentSteps ? 22 : 3,
+                        width: 20,
+                        height: 20,
+                        borderRadius: 999,
+                        background: showOnlyAgentSteps ? "#2DD4A8" : "rgba(255,255,255,0.30)",
+                        transition: "left 0.2s ease",
+                      }}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -672,91 +875,6 @@ export default function FlowChartView() {
               padding: "14px 14px 12px",
             }}
           >
-            <div
-              style={{
-                position: "absolute",
-                right: 14,
-                top: 14,
-                zIndex: 10,
-                background: "rgba(11,15,25,0.72)",
-                border: "1px solid rgba(255,255,255,0.10)",
-                borderRadius: "14px",
-                padding: "12px 12px",
-                width: "260px",
-                backdropFilter: "blur(18px)",
-                WebkitBackdropFilter: "blur(18px)",
-                boxShadow: "0 20px 70px rgba(0,0,0,0.45)",
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Geist Mono', monospace",
-                  fontSize: "10px",
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "#D4A843",
-                  fontWeight: 800,
-                }}
-              >
-                Legend
-              </div>
-              <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
-                <div className="flex items-center gap-2">
-                  <span style={{ width: 16, height: 10, borderRadius: 4, background: "rgba(148,163,184,0.18)", border: "1px solid rgba(255,255,255,0.14)" }} />
-                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>ERP Automated Step</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span style={{ width: 16, height: 10, borderRadius: 4, background: "linear-gradient(135deg, rgba(30,58,138,0.85), rgba(15,118,110,0.65))", border: "1px solid rgba(30,58,138,0.55)" }} />
-                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Agent-Active Step</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span style={{ width: 12, height: 12, transform: "rotate(45deg)", background: "rgba(180,83,9,0.10)", border: "1px solid rgba(180,83,9,0.9)" }} />
-                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Decision</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span style={{ width: 16, height: 10, borderRadius: 999, background: "#15803D", border: "1px solid rgba(21,128,61,0.55)" }} />
-                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>Start</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span style={{ width: 16, height: 10, borderRadius: 999, background: "#B91C1C", border: "1px solid rgba(185,28,28,0.55)" }} />
-                  <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>End</div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between gap-2">
-                <div style={{ fontSize: "12px", color: "#8B95A8", fontWeight: 650 }}>
-                  Show only agent steps
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowOnlyAgentSteps((v) => !v)}
-                  style={{
-                    width: 44,
-                    height: 26,
-                    borderRadius: 999,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: showOnlyAgentSteps ? "rgba(45,212,168,0.18)" : "rgba(255,255,255,0.06)",
-                    position: "relative",
-                    cursor: "pointer",
-                  }}
-                  aria-pressed={showOnlyAgentSteps}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 3,
-                      left: showOnlyAgentSteps ? 22 : 3,
-                      width: 20,
-                      height: 20,
-                      borderRadius: 999,
-                      background: showOnlyAgentSteps ? "#2DD4A8" : "rgba(255,255,255,0.30)",
-                      transition: "left 0.2s ease",
-                    }}
-                  />
-                </button>
-              </div>
-            </div>
-
             <div
               style={{
                 position: "relative",
@@ -771,7 +889,7 @@ export default function FlowChartView() {
                 ref={svgRef}
                 viewBox={`0 0 1200 ${svgHeight}`}
                 width="100%"
-                style={{ display: "block", minWidth: "1000px" }}
+                style={{ display: "block" }}
               >
                 <defs>
                   <linearGradient id="agentGrad" x1="0" y1="0" x2="1" y2="1">
@@ -799,42 +917,44 @@ export default function FlowChartView() {
                   </marker>
                 </defs>
 
-                <rect x="0" y="0" width="1200" height={svgHeight} fill="rgba(0,0,0,0)" />
-                <g className="flow-ambient" opacity="0.55">
-                  {Array.from({ length: 28 }, (_, i) => (
-                    <circle
-                      key={i}
-                      cx={80 + (i * 37) % 1040}
-                      cy={90 + ((i * 71) % (svgHeight - 200))}
-                      r={1 + (i % 3)}
-                      fill="rgba(45,212,168,0.14)"
-                    />
-                  ))}
-                </g>
-
-                <g>
-                  {visibleEdges.map((e) => {
-                    const from = nodeById.get(e.from)!;
-                    const to = nodeById.get(e.to)!;
-                    const d = pathBetween(from, to);
-                    return (
-                      <path
-                        key={e.id}
-                        data-edge={e.id}
-                        d={d}
-                        fill="none"
-                        stroke={e.dashed ? "rgba(180,83,9,0.55)" : "rgba(45,212,168,0.85)"}
-                        strokeWidth={e.dashed ? 2 : 2.4}
-                        strokeDasharray={e.dashed ? "8 10" : undefined}
-                        markerEnd="url(#arrowHead)"
-                        opacity={1}
+                <g transform={viewTransform}>
+                  <rect x="0" y="0" width="1200" height={svgHeight} fill="rgba(0,0,0,0)" />
+                  <g className="flow-ambient" opacity="0.55">
+                    {Array.from({ length: 28 }, (_, i) => (
+                      <circle
+                        key={i}
+                        cx={80 + (i * 37) % 1040}
+                        cy={90 + ((i * 71) % (svgHeight - 200))}
+                        r={1 + (i % 3)}
+                        fill="rgba(45,212,168,0.14)"
                       />
-                    );
-                  })}
-                </g>
+                    ))}
+                  </g>
 
-                <g>
-                  {visibleNodes.map((n) => {
+                  <g>
+                    {visibleEdges.map((e) => {
+                      const from = nodeById.get(e.from)!;
+                      const to = nodeById.get(e.to)!;
+                      const d = pathBetween(from, to);
+                      return (
+                        <path
+                          key={e.id}
+                          data-edge={e.id}
+                          d={d}
+                          fill="none"
+                          stroke={e.dashed ? "rgba(180,83,9,0.55)" : "rgba(45,212,168,0.85)"}
+                          strokeWidth={e.dashed ? 2 : 2.4}
+                          strokeDasharray={e.dashed ? "8 10" : undefined}
+                          markerEnd="url(#arrowHead)"
+                          opacity={1}
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      );
+                    })}
+                  </g>
+
+                  <g>
+                    {visibleNodes.map((n) => {
                     const st = nodeStyle(n.kind, n.branchKind);
                     const isDecision = n.kind === "decision";
                     const isAgent = n.kind === "agent";
@@ -850,7 +970,13 @@ export default function FlowChartView() {
                       const points = `${cx},${cy - h / 2} ${cx + w / 2},${cy} ${cx},${cy + h / 2} ${cx - w / 2},${cy}`;
                       return (
                         <g key={n.id} data-node={n.id} opacity={baseOpacity} style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}>
-                          <polygon points={points} fill={st.fill} stroke={st.stroke} strokeWidth="2.4" />
+                          <polygon
+                            points={points}
+                            fill={st.fill}
+                            stroke={st.stroke}
+                            strokeWidth="2.4"
+                            vectorEffect="non-scaling-stroke"
+                          />
                           <text x={cx} y={cy - 10} textAnchor="middle" fill="#F0F2F5" fontSize="12" fontWeight="800">
                             {`Step ${n.stepNo}`}
                           </text>
@@ -880,6 +1006,7 @@ export default function FlowChartView() {
                           stroke={st.stroke}
                           strokeWidth="1.8"
                           filter={isAgent ? "url(#glowCyan)" : undefined}
+                          vectorEffect="non-scaling-stroke"
                         />
 
                         {isAgent && (
@@ -917,6 +1044,7 @@ export default function FlowChartView() {
                       </g>
                     );
                   })}
+                </g>
                 </g>
               </svg>
             </div>
